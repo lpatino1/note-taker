@@ -1,8 +1,8 @@
 const express = require('express');
 const { dirname } = require('path');
 const path = require('path');
-// const  api = require('./Develop/public/index.js');
-const notes = require('./Develop/db/db.json');
+
+const notes = require('./develop/db/db.json');
 const PORT = process.env.PORT || 3001;
 const fs = require('fs');
 
@@ -14,24 +14,24 @@ const app = express();
 //Middleware for data parsing
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-// app.use('./Develop/public/index.js', api);
 
-app.use(express.static('public'));
+
+app.use(express.static(__dirname +'/public'));
 
 //GET route for home page
 app.get('/', (req, res)=>
-    res.sendFile(path.join(__dirname, './Develop/public/index.html'))
+    res.sendFile(path.join(__dirname, './develop/public/index.html'))
 );
 
 //GET route for note page
 app.get('/notes', (req, res)=>
-    res.sendFile(path.join(__dirname, './Develop/public/notes.html')),
+    res.sendFile(path.join(__dirname, './develop/public/notes.html')),
     
 );
 
 //reads db.json file and returns all saved notes as JSON
 app.get('/api/notes', (req, res)=>{
-    fs.readFile('/Develop/db/db.json', "utf-8",(err, data)=>{
+    fs.readFile('/develop/db/db.json', "utf-8",(err, data)=>{
         if(err){
             throw err;
         } else {
@@ -49,13 +49,13 @@ app.post('/api/notes', (req, res)=>{
         text: req.body.text
     }
 
-    fs.readFile('/Develop/db/db.json',"utf-8",(err, data)=>{
+    fs.readFile('/develop/db/db.json',"utf-8",(err, data)=>{
         if(err){
             throw err;
         } else {
             const notes = JSON.parse(data);
             notes.push(newNote);
-            fs.writeFile('/Develop/db/db.json', JSON.stringify(notes, null, 4), (err, data)=>{
+            fs.writeFile('/develop/db/db.json', JSON.stringify(notes, null, 4), (err, data)=>{
                 if(err){
                     throw err;
                 } else {
