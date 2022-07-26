@@ -4,6 +4,7 @@ const path = require('path');
 // const  api = require('./Develop/public/index.js');
 const notes = require('./Develop/db/db.json');
 const PORT = process.env.PORT || 3001;
+const fs = require('fs');
 
 
 //Middleware for finding static files
@@ -28,9 +29,46 @@ app.get('/notes', (req, res)=>
     
 );
 
+//reads db.json file and returns all saved notes as JSON
+app.get('/api/notes', (req, res)=>{
+    fs.readFile('/Develop/db/db.json', "utf-8",(err, data)=>{
+        if(err){
+            throw err;
+        } else {
+            console.log("successfully read db file");
+            const notes = JSON.parse(data);
+            res.json(notes);
+        }
+    })
+});
+
+//posts a new note
+app.post('/api/notes', (req, res)=>{
+    const newNote ={
+        title: req.body.title,
+        text: req.body.text
+    }
+
+    fs.readFile('/Develop/db/db.json',"utf-8",(err, data)=>{
+        if(err){
+            throw err;
+        } else {
+            const notes = JSON.parse(data);
+            notes.push(newNote);
+            fs.writeFile('/Develop/db/db.json', JSON.stringify(notes, null, 4), (err, data)=>{
+                if(err){
+                    throw err;
+                } else {
+                    res.json({data: req.body, message: "successfully created new note!"});
+                  
+                }
+            })
+            
+        }
+    })
 
 
-
+});
 
 
 
