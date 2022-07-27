@@ -1,10 +1,10 @@
 const express = require('express');
 const { dirname } = require('path');
 const path = require('path');
-
-const notes = require('./develop/db/db.json');
+const notes = require('./db/db.json');
 const PORT = process.env.PORT || 3001;
 const fs = require('fs');
+const uuid = require('./uuid');
 
 
 //Middleware for finding static files
@@ -16,22 +16,22 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 
-app.use(express.static(__dirname +'/public'));
+app.use(express.static('public'));
 
 //GET route for home page
 app.get('/', (req, res)=>
-    res.sendFile(path.join(__dirname, './develop/public/index.html'))
+    res.sendFile(path.join(__dirname, './public/index.html'))
 );
 
 //GET route for note page
 app.get('/notes', (req, res)=>
-    res.sendFile(path.join(__dirname, './develop/public/notes.html')),
+    res.sendFile(path.join(__dirname, './public/notes.html')),
     
 );
 
 //reads db.json file and returns all saved notes as JSON
 app.get('/api/notes', (req, res)=>{
-    fs.readFile('/develop/db/db.json', "utf-8",(err, data)=>{
+    fs.readFile('./db/db.json', "utf-8",(err, data)=>{
         if(err){
             throw err;
         } else {
@@ -46,16 +46,17 @@ app.get('/api/notes', (req, res)=>{
 app.post('/api/notes', (req, res)=>{
     const newNote ={
         title: req.body.title,
-        text: req.body.text
+        text: req.body.text,
+        id: uuid()
     }
 
-    fs.readFile('/develop/db/db.json',"utf-8",(err, data)=>{
+    fs.readFile('./db/db.json',"utf-8",(err, data)=>{
         if(err){
             throw err;
         } else {
             const notes = JSON.parse(data);
             notes.push(newNote);
-            fs.writeFile('/develop/db/db.json', JSON.stringify(notes, null, 4), (err, data)=>{
+            fs.writeFile('./db/db.json', JSON.stringify(notes, null, 4), (err, data)=>{
                 if(err){
                     throw err;
                 } else {
@@ -67,10 +68,38 @@ app.post('/api/notes', (req, res)=>{
         }
     })
 
-
 });
 
+//delete
 
+app.delete('/api/notes/:id', (req, res)=>{
+    const { requestedId } = req.params.id;
+    
+    fs.readFile('./db/db.json', "utf-8", (err, data)=>
+        {if (err){
+            throw err;
+        } else {
+            let notes = JSON.parse(data);
+            res.json(notes);
+
+            for(let i = 0; i<notes.length; i++){
+                if(requestedId==notes[i].id){
+                    return res.json(notes[i].id);
+                    
+                }
+            }
+
+            fs.writeFile('./db/db.json',"utf-8",(err, data)=>{
+                if(err){
+                    throw err;
+                } else {
+                    res.json({data: req.body, message: "successfully created new note!"});
+                }
+            });
+        }   
+
+    });
+})
 
 
 app.listen(PORT, ()=>
