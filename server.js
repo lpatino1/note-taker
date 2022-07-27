@@ -72,34 +72,34 @@ app.post('/api/notes', (req, res)=>{
 
 //delete
 
-app.delete('/api/notes/:id', (req, res)=>{
-    const { requestedId } = req.params.id;
+// app.delete('/api/notes/:id', (req, res)=>{
+//     const { requestedId } = req.params.id;
     
-    fs.readFile('./db/db.json', "utf-8", (err, data)=>
-        {if (err){
-            throw err;
-        } else {
-            let notes = JSON.parse(data);
-            res.json(notes);
+//     fs.readFile('./db/db.json', "utf-8", (err, data)=>
+//         {if (err){
+//             throw err;
+//         } else {
+//             let notes = JSON.parse(data);
+//             res.json(notes);
 
-            for(let i = 0; i<notes.length; i++){
-                if(requestedId==notes[i].id){
-                    return res.json(notes[i].id);
+//             for(let i = 0; i<notes.length; i++){
+//                 if(requestedId==notes[i].id){
+//                     return res.json(notes[i].id);
                     
-                }
-            }
+//                 }
+//             }
 
-            fs.writeFile('./db/db.json',"utf-8",(err, data)=>{
-                if(err){
-                    throw err;
-                } else {
-                    res.json({data: req.body, message: "successfully created new note!"});
-                }
-            });
-        }   
+//             fs.writeFile('./db/db.json',"utf-8",(err, data)=>{
+//                 if(err){
+//                     throw err;
+//                 } else {
+//                     res.json({data: req.body, message: "successfully created new note!"});
+//                 }
+//             });
+//         }   
 
-    });
-})
+//     });
+// })
 
 
 app.listen(PORT, ()=>
